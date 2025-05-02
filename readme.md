@@ -39,8 +39,8 @@ Weapon Detection System — это веб-приложение для обнар
 ### 1. Клонирование репозитория
 Склонируйте проект на ваш локальный компьютер:
 ```bash
-git clone https://github.com/your-repository-url/gun-detection.git
-cd gun-detection
+git clone https://github.com/nikifolesya/WeaponDetection.git
+cd WeaponDetection
 ```
 
 ### 2. Создание виртуального окружения
@@ -75,21 +75,22 @@ flask run
 ## Структура проекта
 ```
 WeaponDetection/
-├── app.py
-├── detector.py
-├── requirements.txt
-├── .env                   
-├── data/
-│   └── history.json
+├── app.py            # Основной файл приложения Flask
+├── detector.py       # Логика детекции изображений и видео
+├── requirements.txt  # Список зависимостей
+├── .env              # Конфигурация API-ключа Roboflow                  
+├── data/ 
+│   └── history.json  # История загруженных файлов и результатов
 ├── static/
 │   ├── css/
-│   │   └── main.css       
+│   │   └── main.css  # Кастомные стили      
 │   ├── js/
-│   │   └── main.js        
-│   └── results/           
+│   │   └── main.js   # Скрипты для взаимодействия с интерфейсом      
+│   └── results/      # Сохранённые результаты анализа      
 ├── templates/
-│   ├── index.html
-│   ├── history.html
-│   └── result.html
-└── README.md
+│   ├── index.html    # Главная страница
+│   ├── history.html  # История загрузок
+│   └── result.html   # Результаты анализа
+└── README.md         # Документация проекта
 ```
+
