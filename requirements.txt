@@ -1,0 +1,12 @@
+flask==2.3.2
+pillow==9.5.0
+numpy==1.24.3
+opencv-python==4.7.0.72
+torch==2.0.0
+torchvision==0.15.1
+ultralytics==8.0.20
+pandas==2.0.1
+fpdf==1.7.2
+openpyxl==3.1.2
+roboflow==1.1.63
+supervision

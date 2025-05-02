@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История детекций</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="/">Система обнаружения оружия</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0 fw-medium fs-4 mb-0">История детекций</h2>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Экспорт отчета
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                <li><a class="dropdown-item" href="/export_report/pdf"><i class="fas fa-file-pdf me-2"></i>PDF</a></li>
+                                <li><a class="dropdown-item" href="/export_report/excel"><i class="fas fa-file-excel me-2"></i>Excel</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if history %}
+                        <div class="table">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 5%;">№</th>
+                                        <th scope="col" style="width: 15%;">Дата</th>
+                                        <th scope="col" style="width: 21%;">Файл</th>
+                                        <th scope="col" style="width: 25%;">Результат</th>
+                                        <th scope="col" style="width: 17%;">Тип</th>
+                                        <th scope="col" style="width: 17%;">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in history|reverse %}
+                                    <tr>
+                                        <td>{{ entry.id }}</td>
+                                        <td>{{ entry.timestamp }}</td>
+                                        <td>{{ entry.filename }}</td>
+                                        <td>
+                                            {% if entry.detections %}
+                                                <span class="badge bg-danger">Обнаружено объектов: {{ entry.detections|length }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Не обнаружено</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if entry.is_video %}
+                                                <span class="badge bg-info">Видео</span>
+                                            {% else %}
+                                                <span class="badge bg-primary">Изображение</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('static', filename=entry.result_path) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-eye"></i> Просмотр
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i> История пуста. Загрузите изображение или видео для анализа.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if history %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Статистика обнаружений</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="detectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Типы загруженных файлов</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="fileTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        {% if history %}
+        // Подготовка данных для графиков
+        document.addEventListener('DOMContentLoaded', function() {
+            // Данные для графика обнаружений
+            const detectionLabels = [];
+            const detectionData = [];
+            
+            {% for entry in history %}
+                {% for detection in entry.detections %}
+                    if (!detectionLabels.includes('{{ detection.class }}')) {
+                        detectionLabels.push('{{ detection.class }}');
+                        detectionData.push(1);  // Добавляем 1, так как каждый detection — это один объект
+                    } else {
+                        const index = detectionLabels.indexOf('{{ detection.class }}');
+                        detectionData[index] += 1;  // Увеличиваем счётчик для этого класса
+                    }
+                {% endfor %}
+            {% endfor %}
+            
+            // График обнаружений
+            const detectionCtx = document.getElementById('detectionChart').getContext('2d');
+            const detectionChart = new Chart(detectionCtx, {
+                type: 'bar',
+                data: {
+                    labels: detectionLabels,
+                    datasets: [{
+                        label: 'Количество обнаруженных объектов',
+                        data: detectionData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Данные для графика типов файлов
+            let imageCount = 0;
+            let videoCount = 0;
+            
+            {% for entry in history %}
+                {% if entry.is_video %}
+                    videoCount++;
+                {% else %}
+                    imageCount++;
+                {% endif %}
+            {% endfor %}
+            
+            // График типов файлов
+            const fileTypeCtx = document.getElementById('fileTypeChart').getContext('2d');
+            const fileTypeChart = new Chart(fileTypeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Изображения', 'Видео'],
+                    datasets: [{
+                        data: [imageCount, videoCount],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

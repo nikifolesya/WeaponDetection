@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты детекции</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="/">Система обнаружения оружия</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center fw-medium fs-4 mb-0">Результаты детекции</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 d-sm-inline-flex flex-column justify-content-center align-items-center">
+                                {% if result.is_video %}
+                                <div class="ratio ratio-16x9">
+                                    <video controls>
+                                        <source src="{{ url_for('static', filename=result.result_path) }}" type="video/mp4">
+                                        Ваш браузер не поддерживает видео.
+                                    </video>
+                                </div>
+                                {% else %}
+                                <div class="text-center">
+                                    <img src="{{ url_for('static', filename=result.result_path) }}" class="img-fluid" alt="Результат детекции">
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 d-sm-inline-flex flex-column justify-content-between">
+                                <div class="card">
+                                    {% if result.detections %}
+                                        <div class="card-header bg-danger text-white">
+                                            <h5 class="text-center mb-0 fs-6 pt-1 pb-1">Обнаружены опасные предметы</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-group">
+                                                {% for detection in result.detections %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    {{ detection.class }}
+                                                    <span class="badge bg-danger rounded-pill">{{ detection.confidence|round(2) }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% else %}
+                                        <div class="badge bg-success text-white">
+                                            <h5 class="text-center mb-0 fs-6 pt-1 pb-1">Опасные предметы не обнаружены</h5>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <div class="d-grid gap-2">
+                                        <a href="/" class="btn btn-outline-secondary fs-6">Загрузить новое изображение/видео</a>
+                                        <a href="/history" class="btn btn-outline-secondary fs-6">Перейти к истории</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

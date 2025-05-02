@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детекция оружия</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="/">Система обнаружения оружия</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/history">История</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center fw-medium fs-4 mb-0">Загрузка изображения или видео</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="/detect" method="post" enctype="multipart/form-data" id="upload-form">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Выберите файл</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".jpg,.jpeg,.png,.mp4,.avi,.mov" required>
+                                <div class="form-text">Поддерживаемые форматы: JPG, JPEG, PNG, MP4, AVI, MOV</div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-outline-secondary" id="submit-btn">Детектировать</button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <img src="" id="preview-image" class="img-fluid d-none">
+                            <video src="" id="preview-video" class="img-fluid d-none" controls></video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
