@@ -30,7 +30,6 @@ Weapon Detection System — это веб-приложение для обнар
 - FPDF
 - Roboflow
 - Supervision
-- Torch и TorchVision
 
 ---
 
